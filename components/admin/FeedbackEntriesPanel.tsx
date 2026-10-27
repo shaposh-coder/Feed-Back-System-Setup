@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, ChevronRight, Eye, Search, Star } from 'lucide-react'
 import type { FeedbackEntry, FeedbackStatus } from '@/lib/feedbackTypes'
+import { FEEDBACK_LIST_PAGE_SIZE } from '@/lib/feedbackPaging'
 import { SATISFACTION_STARS } from '@/lib/feedbackOptions'
 
 type ListResponse = {
@@ -242,6 +243,14 @@ export default function FeedbackEntriesPanel() {
         <div className="flex items-center justify-between gap-3 border-t border-brand-100 px-4 py-3">
           <p className="text-xs text-brand-500">
             Page {page} of {totalPages}
+            <span className="mx-1.5 text-brand-300">·</span>
+            {FEEDBACK_LIST_PAGE_SIZE} per page
+            {total > 0 ? (
+              <>
+                <span className="mx-1.5 text-brand-300">·</span>
+                {total} total
+              </>
+            ) : null}
           </p>
           <div className="flex gap-2">
             <button

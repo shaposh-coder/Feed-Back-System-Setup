@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
 import { getAdminSessionFromCookies } from '@/lib/adminSession'
+import { FEEDBACK_LIST_PAGE_SIZE } from '@/lib/feedbackPaging'
 import { FEEDBACK_SELECT, type FeedbackStatus } from '@/lib/feedbackTypes'
 import { getSupabaseAdmin } from '@/lib/supabase-server'
 
 export const runtime = 'nodejs'
 
-const PAGE_SIZE = 25
+const PAGE_SIZE = FEEDBACK_LIST_PAGE_SIZE
 
 export async function GET(request: Request) {
   const session = await getAdminSessionFromCookies()
