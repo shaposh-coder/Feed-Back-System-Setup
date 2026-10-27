@@ -1,9 +1,28 @@
 import type { Metadata } from 'next'
+import BrandFavicon from '@/components/BrandFavicon'
+import { getBrandSettings } from '@/lib/brandSettings'
 import './globals.css'
 
-export const metadata: Metadata = {
-  title: 'Store Visit Feedback',
-  description: 'Share your experience from today’s store visit.',
+export async function generateMetadata(): Promise<Metadata> {
+  const brand = await getBrandSettings()
+  const title = brand.brandName
+    ? `${brand.brandName} · Store Visit Feedback`
+    : 'Store Visit Feedback'
+
+  const metadata: Metadata = {
+    title,
+    description: 'Share your experience from today’s store visit.',
+  }
+
+  if (brand.faviconUrl) {
+    metadata.icons = {
+      icon: [{ url: brand.faviconUrl }],
+      shortcut: [{ url: brand.faviconUrl }],
+      apple: [{ url: brand.faviconUrl }],
+    }
+  }
+
+  return metadata
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -17,7 +36,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <BrandFavicon />
+        {children}
+      </body>
     </html>
   )
 }

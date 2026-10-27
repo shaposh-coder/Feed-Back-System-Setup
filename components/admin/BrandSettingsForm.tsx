@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from 'react'
 import { ImagePlus, Trash2 } from 'lucide-react'
+import { BRAND_FAVICON_UPDATED_EVENT } from '@/components/BrandFavicon'
 
 type BrandState = {
   brandName: string
@@ -108,6 +109,13 @@ export default function BrandSettingsForm() {
         return
       }
       applyBrand(data)
+      if (kind === 'favicon') {
+        window.dispatchEvent(
+          new CustomEvent(BRAND_FAVICON_UPDATED_EVENT, {
+            detail: { faviconUrl: data.faviconUrl || '' },
+          })
+        )
+      }
       setMessage(kind === 'logo' ? 'Logo uploaded.' : 'Favicon uploaded.')
     } catch {
       setError('Network error while uploading.')
@@ -138,6 +146,13 @@ export default function BrandSettingsForm() {
         return
       }
       applyBrand(data)
+      if (kind === 'favicon') {
+        window.dispatchEvent(
+          new CustomEvent(BRAND_FAVICON_UPDATED_EVENT, {
+            detail: { faviconUrl: data.faviconUrl || '' },
+          })
+        )
+      }
       setMessage(kind === 'logo' ? 'Logo removed.' : 'Favicon removed.')
     } catch {
       setError('Network error while saving.')
@@ -190,9 +205,6 @@ export default function BrandSettingsForm() {
             maxLength={120}
             required
           />
-          <p className="mt-2 text-xs text-brand-500">
-            Example question later: “What category do you usually purchase from {'{Brand}'}?”
-          </p>
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -255,10 +267,16 @@ export default function BrandSettingsForm() {
                   src={faviconUrl}
                   alt="Favicon preview"
                   className="h-12 w-12 object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none'
+                    const fallback = e.currentTarget.nextElementSibling
+                    if (fallback instanceof HTMLElement) fallback.hidden = false
+                  }}
                 />
-              ) : (
-                <span className="text-xs text-brand-400">No favicon uploaded</span>
-              )}
+              ) : null}
+              <span className="text-xs text-brand-400" hidden={Boolean(faviconUrl)}>
+                {faviconUrl ? 'Uploaded (preview unavailable)' : 'No favicon uploaded'}
+              </span>
             </div>
             <input
               ref={faviconInputRef}

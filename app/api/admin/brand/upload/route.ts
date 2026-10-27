@@ -76,12 +76,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unable to prepare uploads right now.' }, { status: 500 })
     }
 
+    const allowedMimeTypes = Array.from(new Set([...LOGO_TYPES, ...FAVICON_TYPES]))
     const exists = (buckets.data ?? []).some((b) => b.name === BUCKET_NAME)
     if (!exists) {
       const create = await admin.storage.createBucket(BUCKET_NAME, {
         public: true,
-        fileSizeLimit: `${MAX_FILE_BYTES}`,
-        allowedMimeTypes: Array.from(new Set([...LOGO_TYPES, ...FAVICON_TYPES])),
+        fileSizeLimit: MAX_FILE_BYTES,
+        allowedMimeTypes,
       })
       if (create.error) {
         console.error('create bucket:', create.error.message)
@@ -92,6 +93,16 @@ export async function POST(request: NextRequest) {
           },
           { status: 500 }
         )
+      }
+    } else {
+      // Keep bucket MIME allow-list in sync (e.g. newly added AVIF)
+      const update = await admin.storage.updateBucket(BUCKET_NAME, {
+        public: true,
+        fileSizeLimit: MAX_FILE_BYTES,
+        allowedMimeTypes,
+      })
+      if (update.error) {
+        console.error('update bucket:', update.error.message)
       }
     }
 
@@ -114,7 +125,15 @@ export async function POST(request: NextRequest) {
     })
     if (upload.error) {
       console.error('upload:', upload.error.message)
-      return NextResponse.json({ error: 'Unable to upload image. Please try again.' }, { status: 500 })
+      const mimeBlocked = /mime type|not supported/i.test(upload.error.message)
+      return NextResponse.json(
+        {
+          error: mimeBlocked
+            ? 'This image format is blocked in storage settings. In Storage → branding-assets → Configuration, allow image/avif (or clear Allowed MIME types), then try again.'
+            : 'Unable to upload image. Please try again.',
+        },
+        { status: 500 }
+      )
     }
 
     const publicUrl = admin.storage.from(BUCKET_NAME).getPublicUrl(filePath).data.publicUrl
