@@ -36,7 +36,7 @@ next-env.d.ts
 
 # Reference-only (do not ship / do not treat as product source)
 /Courier-Dashboard/
-/Personal Notedbook/
+
 
 # demo / docs tooling later
 **/auto-screenshot/auth/

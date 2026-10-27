@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error('feedback route error:', err)
     return NextResponse.json(
-      { error: 'Server is not configured for submissions yet. Add Supabase keys in .env.local.' },
+      { error: 'Unable to save your feedback right now. Please try again later.' },
       { status: 500 }
     )
   }

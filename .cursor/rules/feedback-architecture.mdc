@@ -15,6 +15,13 @@ alwaysApply: true
 - Do **not** expose service role to the browser. Do not insert from the client for production submissions.
 - Schema source of truth: `database/schema.sql`.
 
+## Admin panel (`/admin`)
+- Login via **Supabase Auth** (`signInWithPassword`) — only users in Supabase Authentication can sign in.
+- After Auth succeeds, set app session cookie `feedback_admin_session` (signed with `JWT_SECRET`) carrying `userId`, `email`, `name`.
+- Middleware guards `/admin/*` except `/admin/login`.
+- List/detail via `/api/admin/feedback` with service role; never expose admin APIs without session check.
+- Brand name / question labels: configure later from admin settings (do not hardcode client brands).
+
 ## Layering
 - `app/` — routes & UI pages only
 - `components/` — UI
