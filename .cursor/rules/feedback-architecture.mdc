@@ -1,0 +1,32 @@
+---
+description: Feedback System architecture — Supabase writes, RPC reads later, Demo Mode & docs
+alwaysApply: true
+---
+
+# Feedback System architecture
+
+## Reference only
+- `Courier-Dashboard/` and `Personal Notedbook/` are **reference** (gitignored). Copy patterns; do not import their code into the product app.
+- Prefer Courier patterns: thin pages → `lib/` for data access → API routes for privileged writes → Postgres RPC for heavy/admin reads later.
+
+## Customer form → Supabase
+- Public customer form lives at `/` (multi-step). On **Submit**, POST `/api/feedback`.
+- API validates with `lib/feedbackValidation.ts`, then inserts via `getSupabaseAdmin()` into `feedback_entries`.
+- Do **not** expose service role to the browser. Do not insert from the client for production submissions.
+- Schema source of truth: `database/schema.sql`.
+
+## Layering
+- `app/` — routes & UI pages only
+- `components/` — UI
+- `lib/` — options, validation, supabase clients
+- `database/` — SQL schema / future RPCs (`rpc_*`)
+- Admin panel (later): separate route group; list/filter via RPC + page size caps, never pull all rows client-side for reports
+
+## Demo Mode & portfolio (when built)
+- Follow Personal Notedbook `Portfolio-Project-Setup-Prompt.md`: Phase 1 `demo-mode/` offline clone → Documentation → screenshots → rules → README.
+- Never fold `demo-mode/` into the root production build (`tsconfig` / eslint / vercel exclude).
+- Docs screenshots only under `Documentation/images/`; professional English; no real PII in seeds; no passwords in `demo.json`.
+
+## Product tone
+- Client-facing copy: clear professional English.
+- Fictional seed data only in demos.

@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-top: #f7f1ee;
+  --bg-bottom: #efe4dc;
+  --card: rgba(255, 252, 250, 0.92);
+  --line: #e4d5cb;
+  --accent: #8f5c48;
+  --accent-deep: #764a3c;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: #2a2522;
+  background:
+    radial-gradient(1200px 500px at 10% -10%, #f3ebe6 0%, transparent 55%),
+    radial-gradient(900px 420px at 100% 0%, #e8d4c8 0%, transparent 50%),
+    linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer components {
+  .field-label {
+    @apply mb-2 block text-sm font-medium text-ink-800;
+  }
+
+  .field-required {
+    @apply ml-0.5 text-brand-600;
+  }
+
+  .field-input {
+    @apply w-full rounded-xl border border-brand-200 bg-white/90 px-3.5 py-3 text-[15px] text-ink-900 outline-none transition placeholder:text-brand-300 focus:border-brand-500 focus:ring-4 focus:ring-brand-100;
+  }
+
+  .field-input.field-invalid {
+    @apply border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100;
+  }
+
+  .field-select {
+    @apply field-input appearance-none pr-10;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%238f5c48'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-size: 1.1rem;
+    background-position: right 0.9rem center;
+    background-repeat: no-repeat;
+  }
+
+  .choice-group {
+    @apply rounded-2xl border border-transparent p-1 transition;
+  }
+
+  .choice-group.field-invalid {
+    @apply border-red-400 bg-red-50/80;
+  }
+
+  .choice-row {
+    @apply flex cursor-pointer items-start gap-3 rounded-xl border border-transparent px-2.5 py-2 transition hover:border-brand-200 hover:bg-white/70;
+  }
+
+  .choice-row[data-checked='true'] {
+    @apply border-brand-300 bg-white shadow-sm;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-brand-700 px-6 py-3 text-sm font-semibold text-white shadow-soft transition hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-brand-300 bg-white/80 px-5 py-3 text-sm font-semibold text-brand-800 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60;
+  }
+}
