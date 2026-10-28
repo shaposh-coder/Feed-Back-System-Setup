@@ -168,7 +168,7 @@ export default function BrandSettingsForm() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="font-display text-3xl font-semibold text-ink-900">Brand Settings</h1>
+        <h1 className="font-display text-3xl font-semibold text-ink-900">Brand</h1>
         <p className="mt-1 text-sm text-ink-700">
           Set your brand name, logo, and favicon for the feedback experience.
         </p>

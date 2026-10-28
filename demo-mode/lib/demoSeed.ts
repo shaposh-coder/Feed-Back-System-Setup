@@ -10,13 +10,46 @@ import {
   PURCHASE_CATEGORY_OPTIONS,
 } from '@/lib/feedbackOptions'
 import type { FeedbackEntry, FeedbackStatus } from '@/lib/feedbackTypes'
-import type { BrandSettings, DemoProfile } from '@/lib/demoStore'
+import type { BrandSettings, DemoProfile, DemoStoreLocation } from '@/lib/demoStore'
 import { findDemoUserById } from '@/lib/demoUsers'
+
+export const DEMO_STORE_LOCATIONS: DemoStoreLocation[] = [
+  {
+    id: 'loc-karachi',
+    name: 'Karachi',
+    branches: [
+      { id: 'br-khi-clifton', name: 'Clifton' },
+      { id: 'br-khi-dha', name: 'DHA Phase 6' },
+      { id: 'br-khi-gulshan', name: 'Gulshan-e-Iqbal' },
+      { id: 'br-khi-saddar', name: 'Saddar' },
+    ],
+  },
+  {
+    id: 'loc-lahore',
+    name: 'Lahore',
+    branches: [
+      { id: 'br-lhr-gulberg', name: 'Gulberg' },
+      { id: 'br-lhr-dha', name: 'DHA Phase 5' },
+      { id: 'br-lhr-johar', name: 'Johar Town' },
+    ],
+  },
+  {
+    id: 'loc-islamabad',
+    name: 'Islamabad',
+    branches: [
+      { id: 'br-isb-f6', name: 'F-6 Markaz' },
+      { id: 'br-isb-blue', name: 'Blue Area' },
+      { id: 'br-isb-g9', name: 'G-9 Markaz' },
+    ],
+  },
+]
 
 export const DEFAULT_BRAND: BrandSettings = {
   brandName: 'Northwind Retail',
   logoUrl: '',
   faviconUrl: '/favicon.png',
+  locationId: 'loc-karachi',
+  selectedBranchIds: ['br-khi-clifton', 'br-khi-dha'],
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -268,7 +301,10 @@ export function buildSeedEntries(userId: string, now = new Date()): FeedbackEntr
 }
 
 export function buildSeedBrand(): BrandSettings {
-  return { ...DEFAULT_BRAND }
+  return {
+    ...DEFAULT_BRAND,
+    selectedBranchIds: [...DEFAULT_BRAND.selectedBranchIds],
+  }
 }
 
 export function buildSeedProfile(userId: string): DemoProfile {

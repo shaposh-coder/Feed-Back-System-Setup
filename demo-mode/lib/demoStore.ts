@@ -11,10 +11,23 @@ import { buildDashboardStats, type DashboardStats } from '@/lib/dashboardStats'
 import type { FeedbackEntry, FeedbackStatus } from '@/lib/feedbackTypes'
 import { DEFAULT_BRAND, buildSeedBrand, buildSeedEntries, buildSeedProfile } from '@/lib/demoSeed'
 
+export type DemoStoreBranch = {
+  id: string
+  name: string
+}
+
+export type DemoStoreLocation = {
+  id: string
+  name: string
+  branches: DemoStoreBranch[]
+}
+
 export type BrandSettings = {
   brandName: string
   logoUrl: string
   faviconUrl: string
+  locationId: string
+  selectedBranchIds: string[]
 }
 
 export type DemoProfile = {
@@ -201,6 +214,10 @@ export function getBrand(userId: string = PUBLIC_SANDBOX_USER_ID): BrandSettings
     brandName: (stored?.brandName ?? DEFAULT_BRAND.brandName).trim(),
     logoUrl: (stored?.logoUrl ?? '').trim(),
     faviconUrl: (stored?.faviconUrl ?? '').trim(),
+    locationId: (stored?.locationId ?? DEFAULT_BRAND.locationId ?? '').trim(),
+    selectedBranchIds: Array.isArray(stored?.selectedBranchIds)
+      ? stored!.selectedBranchIds.filter(Boolean)
+      : [...(DEFAULT_BRAND.selectedBranchIds ?? [])],
   }
 }
 

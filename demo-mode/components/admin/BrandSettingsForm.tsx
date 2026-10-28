@@ -8,7 +8,15 @@ import { canEdit } from '@/lib/demoUsers'
 
 /** Demo Mode keeps uploads small so they fit in browser storage. */
 const MAX_ASSET_BYTES = 512 * 1024
-const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/avif', 'image/svg+xml', 'image/x-icon', 'image/vnd.microsoft.icon']
+const ALLOWED_TYPES = [
+  'image/png',
+  'image/jpeg',
+  'image/webp',
+  'image/avif',
+  'image/svg+xml',
+  'image/x-icon',
+  'image/vnd.microsoft.icon',
+]
 
 function readFileAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -41,7 +49,6 @@ export default function BrandSettingsForm() {
   }
 
   useEffect(() => {
-    // Demo Mode: brand settings live in this user's localStorage sandbox.
     applyBrand(getBrand(userId))
     setLoading(false)
   }, [userId])
@@ -57,6 +64,18 @@ export default function BrandSettingsForm() {
     return true
   }
 
+  function currentBrand(overrides: Partial<BrandSettings> = {}): BrandSettings {
+    const existing = getBrand(userId)
+    return {
+      brandName: brandName.trim() || existing.brandName,
+      logoUrl,
+      faviconUrl,
+      locationId: existing.locationId,
+      selectedBranchIds: existing.selectedBranchIds,
+      ...overrides,
+    }
+  }
+
   function onSubmit(e: FormEvent) {
     e.preventDefault()
     if (!editable) return
@@ -69,7 +88,7 @@ export default function BrandSettingsForm() {
     setSaving(true)
     setError(null)
     setMessage(null)
-    persist({ brandName: trimmedName, logoUrl, faviconUrl }, 'Brand settings saved.')
+    persist(currentBrand({ brandName: trimmedName }), 'Brand settings saved.')
     setSaving(false)
   }
 
@@ -78,22 +97,25 @@ export default function BrandSettingsForm() {
     setError(null)
     setMessage(null)
     if (!ALLOWED_TYPES.includes(file.type)) {
-      setError('Please choose a PNG, JPG, WEBP, AVIF, SVG, or ICO image.')
+      setError(
+        kind === 'favicon'
+          ? 'Favicon must be PNG, JPG, WEBP, AVIF, SVG, or ICO.'
+          : 'Logo must be PNG, JPG, WEBP, AVIF, or SVG.'
+      )
       return
     }
-    if (file.size > MAX_ASSET_BYTES) {
-      setError('In Demo Mode, images must be 512 KB or smaller.')
+    if (file.size <= 0 || file.size > MAX_ASSET_BYTES) {
+      setError('Image max size is 512 KB in Demo Mode.')
       return
     }
     setUploading(kind)
     try {
       const dataUrl = await readFileAsDataUrl(file)
       persist(
-        {
-          brandName: brandName.trim() || getBrand(userId).brandName,
+        currentBrand({
           logoUrl: kind === 'logo' ? dataUrl : logoUrl,
           faviconUrl: kind === 'favicon' ? dataUrl : faviconUrl,
-        },
+        }),
         kind === 'logo' ? 'Logo uploaded.' : 'Favicon uploaded.'
       )
     } catch {
@@ -108,11 +130,10 @@ export default function BrandSettingsForm() {
     setError(null)
     setMessage(null)
     persist(
-      {
-        brandName: brandName.trim() || getBrand(userId).brandName,
+      currentBrand({
         logoUrl: kind === 'logo' ? '' : logoUrl,
         faviconUrl: kind === 'favicon' ? '' : faviconUrl,
-      },
+      }),
       kind === 'logo' ? 'Logo removed.' : 'Favicon removed.'
     )
   }
@@ -124,7 +145,7 @@ export default function BrandSettingsForm() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="font-display text-3xl font-semibold text-ink-900">Brand Settings</h1>
+        <h1 className="font-display text-3xl font-semibold text-ink-900">Brand</h1>
         <p className="mt-1 text-sm text-ink-700">
           Set your brand name, logo, and favicon for the feedback experience.
         </p>

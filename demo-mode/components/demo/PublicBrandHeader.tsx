@@ -15,5 +15,18 @@ export default function PublicBrandHeader() {
     return () => window.removeEventListener(STORE_CHANGED_EVENT, load)
   }, [])
 
-  return <FeedbackBrandHeader brand={brand ?? { brandName: '', logoUrl: '', faviconUrl: '' }} loading={!brand} />
+  return (
+    <FeedbackBrandHeader
+      brand={
+        brand ?? {
+          brandName: '',
+          logoUrl: '',
+          faviconUrl: '',
+          locationId: '',
+          selectedBranchIds: [],
+        }
+      }
+      loading={!brand}
+    />
+  )
 }

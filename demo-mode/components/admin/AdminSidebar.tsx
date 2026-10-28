@@ -1,25 +1,35 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
+  ChevronDown,
   ClipboardList,
   LayoutDashboard,
   LogOut,
-  RotateCcw,
+  MapPin,
   MessageSquareText,
+  RotateCcw,
   Settings,
   UserRound,
   X,
   type LucideIcon,
 } from 'lucide-react'
 
+type SubItem = {
+  name: string
+  path: string
+  icon?: LucideIcon
+  match?: (pathname: string) => boolean
+}
+
 type MenuItem = {
   name: string
   path: string
   icon: LucideIcon
   match?: (pathname: string) => boolean
+  children?: SubItem[]
 }
 
 const MENU_ITEMS: MenuItem[] = [
@@ -40,6 +50,21 @@ const MENU_ITEMS: MenuItem[] = [
     path: '/admin/settings',
     icon: Settings,
     match: (pathname) => pathname === '/admin/settings' || pathname.startsWith('/admin/settings/'),
+    children: [
+      {
+        name: 'Brand',
+        path: '/admin/settings',
+        icon: Settings,
+        match: (pathname) => pathname === '/admin/settings',
+      },
+      {
+        name: 'Locations & Branches',
+        path: '/admin/settings/locations',
+        icon: MapPin,
+        match: (pathname) =>
+          pathname === '/admin/settings/locations' || pathname.startsWith('/admin/settings/locations/'),
+      },
+    ],
   },
   {
     name: 'My Profile',
@@ -59,6 +84,12 @@ type AdminSidebarProps = {
   onResetData: () => void
 }
 
+function linkClass(active: boolean, nested = false) {
+  return `flex items-center ${nested ? 'px-6 py-2.5 pl-12 text-sm' : 'px-6 py-3'} text-ink-700 transition-colors hover:bg-brand-50 hover:text-brand-700 ${
+    active ? 'border-r-4 border-brand-700 bg-brand-50 font-medium text-brand-700' : ''
+  }`
+}
+
 /** Off-canvas navigation drawer (Demo Mode adds a role label and a reset control). */
 export default function AdminSidebar({
   open,
@@ -70,6 +101,12 @@ export default function AdminSidebar({
   onResetData,
 }: AdminSidebarProps) {
   const pathname = usePathname()
+  const settingsOpenByPath = pathname === '/admin/settings' || pathname.startsWith('/admin/settings/')
+  const [brandOpen, setBrandOpen] = useState(settingsOpenByPath)
+
+  useEffect(() => {
+    if (settingsOpenByPath) setBrandOpen(true)
+  }, [settingsOpenByPath])
 
   useEffect(() => {
     if (!open) return
@@ -133,9 +170,68 @@ export default function AdminSidebar({
           <ul className="space-y-0">
             {MENU_ITEMS.map((item) => {
               const Icon = item.icon
+              const hasChildren = Boolean(item.children?.length)
+              const childActive = item.children?.some((child) =>
+                child.match
+                  ? child.match(pathname)
+                  : pathname === child.path || pathname.startsWith(`${child.path}/`)
+              )
               const isActive = item.match
                 ? item.match(pathname)
                 : pathname === item.path || pathname.startsWith(`${item.path}/`)
+
+              if (hasChildren) {
+                const expanded = item.path === '/admin/settings' ? brandOpen : Boolean(childActive)
+                return (
+                  <li key={item.name}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (item.path === '/admin/settings') setBrandOpen((v) => !v)
+                      }}
+                      className={`flex w-full items-center px-6 py-3 text-left text-ink-700 transition-colors hover:bg-brand-50 hover:text-brand-700 ${
+                        isActive || childActive
+                          ? 'bg-brand-50/70 font-medium text-brand-700'
+                          : ''
+                      }`}
+                      aria-expanded={expanded}
+                    >
+                      <Icon className="mr-3 h-5 w-5 shrink-0" aria-hidden />
+                      <span className="min-w-0 flex-1 truncate font-medium">{item.name}</span>
+                      <ChevronDown
+                        className={`h-4 w-4 shrink-0 transition-transform ${expanded ? 'rotate-180' : ''}`}
+                        aria-hidden
+                      />
+                    </button>
+                    {expanded ? (
+                      <ul className="pb-1">
+                        {item.children!.map((child) => {
+                          const ChildIcon = child.icon
+                          const subActive = child.match
+                            ? child.match(pathname)
+                            : pathname === child.path
+                          return (
+                            <li key={child.path}>
+                              <Link
+                                href={child.path}
+                                prefetch={false}
+                                onClick={onClose}
+                                className={linkClass(subActive, true)}
+                                aria-current={subActive ? 'page' : undefined}
+                              >
+                                {ChildIcon ? (
+                                  <ChildIcon className="mr-2.5 h-4 w-4 shrink-0" aria-hidden />
+                                ) : null}
+                                <span className="truncate font-medium">{child.name}</span>
+                              </Link>
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    ) : null}
+                  </li>
+                )
+              }
 
               return (
                 <li key={item.name}>
@@ -143,11 +239,7 @@ export default function AdminSidebar({
                     href={item.path}
                     prefetch={false}
                     onClick={onClose}
-                    className={`flex items-center px-6 py-3 text-ink-700 transition-colors hover:bg-brand-50 hover:text-brand-700 ${
-                      isActive
-                        ? 'border-r-4 border-brand-700 bg-brand-50 font-medium text-brand-700'
-                        : ''
-                    }`}
+                    className={linkClass(isActive)}
                     aria-current={isActive ? 'page' : undefined}
                   >
                     <Icon className="mr-3 h-5 w-5 shrink-0" aria-hidden />

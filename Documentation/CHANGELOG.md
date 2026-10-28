@@ -5,6 +5,7 @@ All notable changes to Store Feedback System are documented here.
 ## [1.0.0] — 2026-10-28
 
 ### Added
+- Brand Settings sidebar submenu with Locations & Branches page (locations table + shops table with location dropdown; `store_locations` / `store_branches`, patch `database/patch-locations-branches.sql`).
 - Postgres admin RPCs (`database/rpc.sql`) for dashboard stats, paged entries, entry open, and brand asset updates — Courier-style, service-role only.
 - Vercel Cron endpoint at `/api/cron` (daily 10:00 UTC) protected by `CRON_SECRET`.
 - Initial Demo Mode and documentation pipeline for portfolio publishing.
@@ -14,6 +15,7 @@ All notable changes to Store Feedback System are documented here.
 - Portfolio documentation guides with screenshots under `Documentation/images/`.
 
 ### Changed
+- Locations & Branches tables use Courier settings layout: mobile card lists, desktop side-by-side tables (profile-style grid), FormModal add/edit and delete confirm (production + Demo Mode).
 - Admin dashboard, entries list, and entry open now use RPCs instead of full-table or multi-round-trip Supabase reads.
 - Brand settings reads are short-cached; favicon no longer re-fetches `/api/brand` on every page load.
 - Brand image upload skips bucket list/update on the hot path.

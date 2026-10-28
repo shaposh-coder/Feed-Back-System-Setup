@@ -67,3 +67,4 @@ comment on table public.brand_settings is
 
 -- Admin aggregates / paged reads: also run database/rpc.sql
 -- (rpc_admin_dashboard_stats, rpc_admin_feedback_page, rpc_admin_get_feedback_entry, rpc_admin_set_brand_asset).
+-- Locations + branches for Brand Settings: also run database/patch-locations-branches.sql
