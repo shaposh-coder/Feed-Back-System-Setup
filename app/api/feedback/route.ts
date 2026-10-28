@@ -22,11 +22,36 @@ export async function POST(request: Request) {
 
   try {
     const admin = getSupabaseAdmin()
+
+    // Ensure location + branch exist in the active catalog
+    const { data: catalog, error: catalogError } = await admin.rpc('rpc_admin_locations_catalog')
+    if (catalogError) {
+      console.error('feedback catalog check:', catalogError.message)
+      return NextResponse.json(
+        { error: 'Unable to verify location right now. Please try again.' },
+        { status: 500 }
+      )
+    }
+    const locations = Array.isArray(catalog) ? catalog : []
+    const matchedLoc = locations.find(
+      (loc: { name?: string }) => String(loc.name ?? '').trim() === data.location
+    ) as { name?: string; branches?: Array<{ name?: string }> } | undefined
+    if (!matchedLoc) {
+      return NextResponse.json({ error: 'Please select a valid location.', step: 1 }, { status: 400 })
+    }
+    const branchOk = (matchedLoc.branches ?? []).some(
+      (br) => String(br.name ?? '').trim() === data.branch
+    )
+    if (!branchOk) {
+      return NextResponse.json({ error: 'Please select a valid branch.', step: 1 }, { status: 400 })
+    }
+
     const { error } = await admin.from('feedback_entries').insert({
       full_name: data.fullName,
       phone: data.phone,
       email: data.email,
       location: data.location,
+      branch: data.branch,
       gender: data.gender,
       age_group: data.ageGroup,
       date_of_visit: data.dateOfVisit,

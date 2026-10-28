@@ -141,7 +141,7 @@ export function listEntries(userId: string, params: EntryListParams = {}): Entry
   if (status !== 'all') rows = rows.filter((row) => row.status === status)
   if (q) {
     rows = rows.filter((row) =>
-      [row.full_name, row.email, row.phone, row.location].some((field) =>
+      [row.full_name, row.email, row.phone, row.location, row.branch ?? ''].some((field) =>
         field.toLowerCase().includes(q)
       )
     )
@@ -187,6 +187,7 @@ export function addEntry(
     phone: data.phone,
     email: data.email,
     location: data.location,
+    branch: data.branch,
     gender: data.gender,
     age_group: data.ageGroup,
     date_of_visit: data.dateOfVisit,

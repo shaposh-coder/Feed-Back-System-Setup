@@ -7,6 +7,7 @@ export type FeedbackEntry = {
   phone: string
   email: string
   location: string
+  branch: string
   gender: string
   age_group: string
   date_of_visit: string
@@ -19,4 +20,4 @@ export type FeedbackEntry = {
 }
 
 export const FEEDBACK_SELECT =
-  'id, created_at, full_name, phone, email, location, gender, age_group, date_of_visit, challenges, challenge_other, purchase_categories, overall_satisfaction, categories_feedback, status'
+  'id, created_at, full_name, phone, email, location, branch, gender, age_group, date_of_visit, challenges, challenge_other, purchase_categories, overall_satisfaction, categories_feedback, status'

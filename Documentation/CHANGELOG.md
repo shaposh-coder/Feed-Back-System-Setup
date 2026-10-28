@@ -5,6 +5,7 @@ All notable changes to Store Feedback System are documented here.
 ## [1.0.0] — 2026-10-28
 
 ### Added
+- Public `GET /api/locations` catalog for the customer form; SQL patch `database/patch-feedback-branch.sql`.
 - Brand Settings sidebar submenu with Locations & Branches page (locations table + shops table with location dropdown; `store_locations` / `store_branches`, patch `database/patch-locations-branches.sql`).
 - Postgres admin RPCs (`database/rpc.sql`) for dashboard stats, paged entries, entry open, and brand asset updates — Courier-style, service-role only.
 - Vercel Cron endpoint at `/api/cron` (daily 10:00 UTC) protected by `CRON_SECRET`.
@@ -15,6 +16,10 @@ All notable changes to Store Feedback System are documented here.
 - Portfolio documentation guides with screenshots under `Documentation/images/`.
 
 ### Changed
+- Customer form footer shows “© {year} {brand}. All rights reserved.” under the visit note.
+- Customer form brand logo/name links to `/` so thank-you screen returns to a fresh form.
+- Customer form free-text question label set to “Do you have any feedback or suggestion?”
+- Customer feedback form Location and Branch are searchable dropdowns (type to filter); Branch options follow the selected location (stores `branch` on submissions).
 - Customer feedback form: Email is optional (blank allowed; invalid format still rejected).
 - Locations & Branches tables use Courier settings layout: mobile card lists, desktop side-by-side tables (profile-style grid), FormModal add/edit and delete confirm (production + Demo Mode).
 - Admin dashboard, entries list, and entry open now use RPCs instead of full-table or multi-round-trip Supabase reads.

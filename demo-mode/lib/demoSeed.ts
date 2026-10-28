@@ -68,10 +68,6 @@ const LAST_NAMES = [
   'Farooq', 'Mirza', 'Bukhari', 'Iqbal', 'Hussain', 'Rehman', 'Carter', 'Bennett', 'Foster',
   'Hughes', 'Patel', 'Nair', 'Sharma', 'Fischer',
 ]
-const LOCATIONS = [
-  'Lahore', 'Karachi', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Sialkot', 'Peshawar',
-  'Gujranwala', 'Hyderabad',
-]
 
 const GENDER_WEIGHTS: [string, number][] = [
   ['Female', 58],
@@ -284,7 +280,13 @@ export function buildSeedEntries(userId: string, now = new Date()): FeedbackEntr
       full_name: `${first} ${last}`,
       phone: `0300 555 0${phoneTail}`,
       email,
-      location: pick(rng, LOCATIONS),
+      ...(() => {
+        const loc = pick(rng, DEMO_STORE_LOCATIONS)
+        return {
+          location: loc.name,
+          branch: loc.branches.length ? pick(rng, loc.branches).name : '',
+        }
+      })(),
       gender,
       age_group: weighted(rng, AGE_WEIGHTS),
       date_of_visit: toDateOnly(visit),

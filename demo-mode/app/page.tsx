@@ -1,6 +1,7 @@
 import DemoBanner from '@/components/demo/DemoBanner'
 import PublicBrandHeader from '@/components/demo/PublicBrandHeader'
 import FeedbackForm from '@/components/feedback/FeedbackForm'
+import FeedbackSiteFooter from '@/components/feedback/FeedbackSiteFooter'
 
 export default function HomePage() {
   return (
@@ -11,9 +12,7 @@ export default function HomePage() {
 
         <FeedbackForm />
 
-        <footer className="mt-10 text-center text-xs text-brand-500">
-          One response per visit · Thank you for your time
-        </footer>
+        <FeedbackSiteFooter />
       </main>
     </>
   )

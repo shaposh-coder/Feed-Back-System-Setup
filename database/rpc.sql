@@ -112,6 +112,8 @@ grant execute on function public.rpc_admin_dashboard_stats() to service_role;
 -- ---------------------------------------------------------------------------
 -- Paged feedback list + total_count in one call
 -- ---------------------------------------------------------------------------
+drop function if exists public.rpc_admin_feedback_page(text, text, integer, integer);
+
 create or replace function public.rpc_admin_feedback_page(
   p_status text default 'all',
   p_search text default '',
@@ -125,6 +127,7 @@ returns table (
   phone text,
   email text,
   location text,
+  branch text,
   gender text,
   age_group text,
   date_of_visit date,
@@ -159,6 +162,7 @@ as $fn$
         or e.email ilike '%' || p.search || '%'
         or e.phone ilike '%' || p.search || '%'
         or e.location ilike '%' || p.search || '%'
+        or coalesce(e.branch, '') ilike '%' || p.search || '%'
       )
   ),
   counted as (
@@ -171,6 +175,7 @@ as $fn$
     b.phone,
     b.email,
     b.location,
+    coalesce(b.branch, '') as branch,
     b.gender,
     b.age_group,
     b.date_of_visit,

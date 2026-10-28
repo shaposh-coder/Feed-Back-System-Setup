@@ -167,6 +167,10 @@ export default function FeedbackEntryDetail({ id }: { id: string }) {
               <dd className="text-ink-800">{entry.location}</dd>
             </div>
             <div>
+              <dt className="text-brand-500">Branch</dt>
+              <dd className="text-ink-800">{entry.branch || '—'}</dd>
+            </div>
+            <div>
               <dt className="text-brand-500">Gender</dt>
               <dd className="text-ink-800">{entry.gender}</dd>
             </div>

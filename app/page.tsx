@@ -6,6 +6,8 @@ export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
   const brand = await getBrandSettings()
+  const year = new Date().getFullYear()
+  const rightsName = brand.brandName.trim() || 'Store Feedback'
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col px-4 py-10 sm:px-6 sm:py-14">
@@ -13,8 +15,11 @@ export default async function HomePage() {
 
       <FeedbackForm />
 
-      <footer className="mt-10 text-center text-xs text-brand-500">
-        One response per visit · Thank you for your time
+      <footer className="mt-10 space-y-1.5 text-center text-xs text-brand-500">
+        <p>One response per visit · Thank you for your time</p>
+        <p>
+          © {year} {rightsName}. All rights reserved.
+        </p>
       </footer>
     </main>
   )

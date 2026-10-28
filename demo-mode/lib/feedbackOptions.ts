@@ -65,6 +65,7 @@ export type FeedbackFormData = {
   phone: string
   email: string
   location: string
+  branch: string
   gender: GenderOption | ''
   ageGroup: AgeGroupOption | ''
   dateOfVisit: string
@@ -80,6 +81,7 @@ export const EMPTY_FEEDBACK_FORM: FeedbackFormData = {
   phone: '',
   email: '',
   location: '',
+  branch: '',
   gender: '',
   ageGroup: '',
   dateOfVisit: '',

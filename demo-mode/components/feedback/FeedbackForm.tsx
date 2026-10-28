@@ -21,7 +21,9 @@ import {
   validateStep1,
   type FeedbackFieldKey,
 } from '@/lib/feedbackValidation'
-import { addEntry } from '@/lib/demoStore'
+import SearchableSelect from '@/components/feedback/SearchableSelect'
+import { getLocations } from '@/lib/demoLocations'
+import { addEntry, PUBLIC_SANDBOX_USER_ID } from '@/lib/demoStore'
 
 type Step = 1 | 2
 
@@ -33,6 +35,12 @@ export default function FeedbackForm() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [hoverStars, setHoverStars] = useState(0)
+
+  const locations = useMemo(() => getLocations(PUBLIC_SANDBOX_USER_ID), [])
+  const branchOptions = useMemo(() => {
+    const loc = locations.find((item) => item.name === form.location)
+    return loc?.branches ?? []
+  }, [locations, form.location])
 
   const selectedStars = useMemo(() => {
     const match = SATISFACTION_STARS.find((item) => item.value === form.overallSatisfaction)
@@ -278,18 +286,45 @@ export default function FeedbackForm() {
             <label htmlFor="location" className="field-label">
               Location <span className="field-required">*</span>
             </label>
-            <input
+            <SearchableSelect
               id="location"
-              name="address-level2"
-              className={`field-input${isInvalid('location') ? ' field-invalid' : ''}`}
-              type="text"
-              autoComplete="address-level2"
+              name="location"
               value={form.location}
-              onChange={(e) => updateField('location', e.target.value)}
-              onInput={(e) => updateField('location', e.currentTarget.value)}
-              placeholder="City or store area"
-              aria-invalid={isInvalid('location')}
-              required
+              options={locations.map((loc) => ({ value: loc.name, label: loc.name }))}
+              placeholder={
+                locations.length === 0 ? 'No locations available' : 'Search location…'
+              }
+              disabled={locations.length === 0}
+              invalid={isInvalid('location')}
+              emptyMessage="No location matches your search"
+              onChange={(next) => {
+                setForm((prev) => ({ ...prev, location: next, branch: '' }))
+                clearFieldError('location')
+                clearFieldError('branch')
+              }}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="branch" className="field-label">
+              Branch <span className="field-required">*</span>
+            </label>
+            <SearchableSelect
+              id="branch"
+              name="branch"
+              value={form.branch}
+              options={branchOptions.map((br) => ({ value: br.name, label: br.name }))}
+              placeholder={
+                !form.location
+                  ? 'Select a location first'
+                  : branchOptions.length === 0
+                    ? 'No branches for this location'
+                    : 'Search branch…'
+              }
+              disabled={!form.location || branchOptions.length === 0}
+              invalid={isInvalid('branch')}
+              emptyMessage="No branch matches your search"
+              onChange={(next) => updateField('branch', next)}
             />
           </div>
 
@@ -486,14 +521,14 @@ export default function FeedbackForm() {
 
           <div>
             <label htmlFor="categoriesFeedback" className="field-label">
-              What categories would you like to see more, do you have any feedback
+              Do you have any feedback or suggestion?
             </label>
             <textarea
               id="categoriesFeedback"
               className="field-input min-h-[120px] resize-y"
               value={form.categoriesFeedback}
               onChange={(e) => updateField('categoriesFeedback', e.target.value)}
-              placeholder="Share any suggestions or notes for us…"
+              placeholder="Share your feedback or suggestion…"
               rows={4}
             />
           </div>

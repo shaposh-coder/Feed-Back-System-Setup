@@ -31,7 +31,8 @@ const STEP1_MESSAGES: Partial<Record<FeedbackFieldKey, string>> = {
   fullName: 'Please enter your name.',
   phone: 'Please enter your phone number.',
   email: 'Please enter a valid email address.',
-  location: 'Please enter your location.',
+  location: 'Please select your location.',
+  branch: 'Please select your branch.',
   gender: 'Please select your gender.',
   ageGroup: 'Please select your age group.',
 }
@@ -41,6 +42,7 @@ export function getStep1InvalidFields(input: Partial<FeedbackFormData>): Feedbac
   const phone = (input.phone ?? '').trim()
   const email = (input.email ?? '').trim()
   const location = (input.location ?? '').trim()
+  const branch = (input.branch ?? '').trim()
   const gender = (input.gender ?? '').trim()
   const ageGroup = (input.ageGroup ?? '').trim()
 
@@ -49,6 +51,7 @@ export function getStep1InvalidFields(input: Partial<FeedbackFormData>): Feedbac
   if (!phone) fields.push('phone')
   if (email && !isEmail(email)) fields.push('email')
   if (!location) fields.push('location')
+  if (!branch) fields.push('branch')
   if (!isOneOf(gender, GENDER_OPTIONS)) fields.push('gender')
   if (!isOneOf(ageGroup, AGE_GROUP_OPTIONS)) fields.push('ageGroup')
   return fields
@@ -70,6 +73,7 @@ export function validateStep1(input: Partial<FeedbackFormData>): FeedbackValidat
   const phone = (input.phone ?? '').trim()
   const email = (input.email ?? '').trim()
   const location = (input.location ?? '').trim()
+  const branch = (input.branch ?? '').trim()
   const gender = (input.gender ?? '').trim()
   const ageGroup = (input.ageGroup ?? '').trim()
 
@@ -80,6 +84,7 @@ export function validateStep1(input: Partial<FeedbackFormData>): FeedbackValidat
       phone,
       email,
       location,
+      branch,
       gender: gender as FeedbackFormData['gender'],
       ageGroup: ageGroup as FeedbackFormData['ageGroup'],
       dateOfVisit: '',

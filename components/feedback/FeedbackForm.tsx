@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { Star } from 'lucide-react'
 import {
   AGE_GROUP_OPTIONS,
@@ -19,8 +19,12 @@ import {
   validateStep1,
   type FeedbackFieldKey,
 } from '@/lib/feedbackValidation'
+import SearchableSelect from '@/components/feedback/SearchableSelect'
 
 type Step = 1 | 2
+
+type CatalogBranch = { id: string; name: string }
+type CatalogLocation = { id: string; name: string; branches: CatalogBranch[] }
 
 export default function FeedbackForm() {
   const [step, setStep] = useState<Step>(1)
@@ -30,6 +34,34 @@ export default function FeedbackForm() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [hoverStars, setHoverStars] = useState(0)
+  const [locations, setLocations] = useState<CatalogLocation[]>([])
+  const [catalogLoading, setCatalogLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      setCatalogLoading(true)
+      try {
+        const res = await fetch('/api/locations')
+        const data = (await res.json()) as { locations?: CatalogLocation[]; error?: string }
+        if (!cancelled) {
+          setLocations(Array.isArray(data.locations) ? data.locations : [])
+        }
+      } catch {
+        if (!cancelled) setLocations([])
+      } finally {
+        if (!cancelled) setCatalogLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const branchOptions = useMemo(() => {
+    const loc = locations.find((item) => item.name === form.location)
+    return loc?.branches ?? []
+  }, [locations, form.location])
 
   const selectedStars = useMemo(() => {
     const match = SATISFACTION_STARS.find((item) => item.value === form.overallSatisfaction)
@@ -254,18 +286,49 @@ export default function FeedbackForm() {
             <label htmlFor="location" className="field-label">
               Location <span className="field-required">*</span>
             </label>
-            <input
+            <SearchableSelect
               id="location"
-              name="address-level2"
-              className={`field-input${isInvalid('location') ? ' field-invalid' : ''}`}
-              type="text"
-              autoComplete="address-level2"
+              name="location"
               value={form.location}
-              onChange={(e) => updateField('location', e.target.value)}
-              onInput={(e) => updateField('location', e.currentTarget.value)}
-              placeholder="City or store area"
-              aria-invalid={isInvalid('location')}
-              required
+              options={locations.map((loc) => ({ value: loc.name, label: loc.name }))}
+              placeholder={
+                catalogLoading
+                  ? 'Loading locations…'
+                  : locations.length === 0
+                    ? 'No locations available'
+                    : 'Search location…'
+              }
+              disabled={catalogLoading || locations.length === 0}
+              invalid={isInvalid('location')}
+              emptyMessage="No location matches your search"
+              onChange={(next) => {
+                setForm((prev) => ({ ...prev, location: next, branch: '' }))
+                clearFieldError('location')
+                clearFieldError('branch')
+              }}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="branch" className="field-label">
+              Branch <span className="field-required">*</span>
+            </label>
+            <SearchableSelect
+              id="branch"
+              name="branch"
+              value={form.branch}
+              options={branchOptions.map((br) => ({ value: br.name, label: br.name }))}
+              placeholder={
+                !form.location
+                  ? 'Select a location first'
+                  : branchOptions.length === 0
+                    ? 'No branches for this location'
+                    : 'Search branch…'
+              }
+              disabled={!form.location || branchOptions.length === 0}
+              invalid={isInvalid('branch')}
+              emptyMessage="No branch matches your search"
+              onChange={(next) => updateField('branch', next)}
             />
           </div>
 
@@ -462,14 +525,14 @@ export default function FeedbackForm() {
 
           <div>
             <label htmlFor="categoriesFeedback" className="field-label">
-              What categories would you like to see more, do you have any feedback
+              Do you have any feedback or suggestion?
             </label>
             <textarea
               id="categoriesFeedback"
               className="field-input min-h-[120px] resize-y"
               value={form.categoriesFeedback}
               onChange={(e) => updateField('categoriesFeedback', e.target.value)}
-              placeholder="Share any suggestions or notes for us…"
+              placeholder="Share your feedback or suggestion…"
               rows={4}
             />
           </div>

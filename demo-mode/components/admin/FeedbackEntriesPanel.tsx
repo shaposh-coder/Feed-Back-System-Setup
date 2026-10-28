@@ -103,7 +103,10 @@ function EntryMobileCard({
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-500">Visit</p>
           <p className="mt-0.5 text-ink-800">{entry.date_of_visit}</p>
-          <p className="text-xs text-brand-500">{entry.location}</p>
+          <p className="text-xs text-brand-500">
+            {entry.location}
+            {entry.branch ? ` · ${entry.branch}` : ''}
+          </p>
         </div>
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-brand-500">Rating</p>
@@ -340,7 +343,10 @@ export default function FeedbackEntriesPanel() {
                       </td>
                       <td className="px-4 py-3 text-ink-800">
                         <p>{entry.date_of_visit}</p>
-                        <p className="text-xs text-brand-500">{entry.location}</p>
+                        <p className="text-xs text-brand-500">
+                          {entry.location}
+                          {entry.branch ? ` · ${entry.branch}` : ''}
+                        </p>
                       </td>
                       <td className="px-4 py-3">
                         <RatingStars label={entry.overall_satisfaction} />

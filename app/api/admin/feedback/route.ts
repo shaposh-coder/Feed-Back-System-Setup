@@ -39,7 +39,10 @@ export async function GET(request: Request) {
 
     const rows = (data ?? []) as RpcFeedbackRow[]
     const total = Number(rows[0]?.total_count ?? 0)
-    const entries: FeedbackEntry[] = rows.map(({ total_count: _tc, ...entry }) => entry)
+    const entries: FeedbackEntry[] = rows.map(({ total_count: _tc, ...entry }) => ({
+      ...entry,
+      branch: entry.branch ?? '',
+    }))
 
     return NextResponse.json({
       entries,
