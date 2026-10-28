@@ -27,16 +27,16 @@ export type DashboardStats = {
 
 /** Soft, professional hues — no neon; readable against warm brand UI */
 const CHART_COLORS = [
-  '#6f5348', // mocha
-  '#8a735f', // warm taupe
-  '#5e6f66', // muted sage
-  '#7a6b5d', // clay
-  '#5c6b78', // slate blue-gray
-  '#9a7d68', // soft caramel
-  '#6a5f58', // stone
-  '#7d8a7a', // olive mist
-  '#8b6a5c', // dusty terracotta
-  '#5a6570', // cool charcoal
+  '#6f5348',
+  '#8a735f',
+  '#5e6f66',
+  '#7a6b5d',
+  '#5c6b78',
+  '#9a7d68',
+  '#6a5f58',
+  '#7d8a7a',
+  '#8b6a5c',
+  '#5a6570',
 ]
 
 const GENDER_COLORS: Record<string, string> = {
@@ -54,25 +54,32 @@ const SATISFACTION_COLORS: Record<string, string> = {
   'Very satisfied': '#5f8a74',
 }
 
-type FeedbackRow = {
-  gender: string | null
-  age_group: string | null
-  challenges: string[] | null
-  purchase_categories: string[] | null
-  overall_satisfaction: string | null
-  status: string | null
+type RpcBucket = { label?: string; value?: number }
+
+type RpcDashboardPayload = {
+  total?: number
+  newCount?: number
+  reviewedCount?: number
+  archivedCount?: number
+  averageStars?: number | null
+  gender?: RpcBucket[]
+  ageGroup?: RpcBucket[]
+  challenges?: RpcBucket[]
+  purchaseCategories?: RpcBucket[]
+  satisfaction?: RpcBucket[]
 }
 
-function countByLabel(
-  rows: string[],
+function orderAndColor(
+  buckets: RpcBucket[] | undefined,
   preferredOrder: readonly string[] = [],
   colorByLabel?: Record<string, string>
 ): ChartDatum[] {
   const map = new Map<string, number>()
-  for (const label of rows) {
-    const key = label.trim()
-    if (!key) continue
-    map.set(key, (map.get(key) || 0) + 1)
+  for (const item of buckets ?? []) {
+    const label = String(item.label ?? '').trim()
+    const value = Number(item.value ?? 0)
+    if (!label || !Number.isFinite(value) || value <= 0) continue
+    map.set(label, (map.get(label) || 0) + value)
   }
 
   const ordered: ChartDatum[] = []
@@ -95,55 +102,26 @@ function countByLabel(
   }))
 }
 
-export function buildDashboardStats(rows: FeedbackRow[]): DashboardStats {
-  const total = rows.length
-  let newCount = 0
-  let reviewedCount = 0
-  let archivedCount = 0
-  let starSum = 0
-  let starCount = 0
-
-  const genders: string[] = []
-  const ages: string[] = []
-  const challenges: string[] = []
-  const categories: string[] = []
-  const satisfaction: string[] = []
-
-  for (const row of rows) {
-    if (row.status === 'new') newCount += 1
-    else if (row.status === 'reviewed') reviewedCount += 1
-    else if (row.status === 'archived') archivedCount += 1
-
-    if (row.gender) genders.push(row.gender)
-    if (row.age_group) ages.push(row.age_group)
-    if (row.overall_satisfaction) {
-      satisfaction.push(row.overall_satisfaction)
-      const stars = SATISFACTION_STARS.find((s) => s.value === row.overall_satisfaction)?.stars
-      if (stars) {
-        starSum += stars
-        starCount += 1
-      }
-    }
-    if (Array.isArray(row.challenges)) {
-      for (const item of row.challenges) challenges.push(item)
-    }
-    if (Array.isArray(row.purchase_categories)) {
-      for (const item of row.purchase_categories) categories.push(item)
-    }
-  }
+/** Shape RPC JSON from `rpc_admin_dashboard_stats` (ordering + chart colors only). */
+export function shapeDashboardStats(payload: RpcDashboardPayload | null | undefined): DashboardStats {
+  const raw = payload ?? {}
+  const averageStars =
+    raw.averageStars == null || !Number.isFinite(Number(raw.averageStars))
+      ? null
+      : Number(raw.averageStars)
 
   return {
-    total,
-    newCount,
-    reviewedCount,
-    archivedCount,
-    averageStars: starCount > 0 ? Math.round((starSum / starCount) * 10) / 10 : null,
-    gender: countByLabel(genders, GENDER_OPTIONS, GENDER_COLORS),
-    ageGroup: countByLabel(ages, AGE_GROUP_OPTIONS),
-    challenges: countByLabel(challenges, CHALLENGE_OPTIONS),
-    purchaseCategories: countByLabel(categories, PURCHASE_CATEGORY_OPTIONS),
-    satisfaction: countByLabel(
-      satisfaction,
+    total: Number(raw.total ?? 0),
+    newCount: Number(raw.newCount ?? 0),
+    reviewedCount: Number(raw.reviewedCount ?? 0),
+    archivedCount: Number(raw.archivedCount ?? 0),
+    averageStars,
+    gender: orderAndColor(raw.gender, GENDER_OPTIONS, GENDER_COLORS),
+    ageGroup: orderAndColor(raw.ageGroup, AGE_GROUP_OPTIONS),
+    challenges: orderAndColor(raw.challenges, CHALLENGE_OPTIONS),
+    purchaseCategories: orderAndColor(raw.purchaseCategories, PURCHASE_CATEGORY_OPTIONS),
+    satisfaction: orderAndColor(
+      raw.satisfaction,
       SATISFACTION_STARS.map((s) => s.value),
       SATISFACTION_COLORS
     ).map((item) => {

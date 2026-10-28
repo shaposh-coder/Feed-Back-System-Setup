@@ -23,31 +23,14 @@ export default function FeedbackEntryDetail({ id }: { id: string }) {
       setLoading(true)
       setError(null)
       try {
-        const res = await fetch(`/api/admin/feedback/${id}`)
+        const res = await fetch(`/api/admin/feedback/${id}?markReviewed=1`)
         const data = (await res.json()) as { entry?: FeedbackEntry; error?: string }
         if (!res.ok) {
           if (!cancelled) setError(data.error || 'Unable to load entry.')
           return
         }
 
-        let nextEntry = data.entry || null
-
-        // Opening a new entry marks it reviewed automatically
-        if (nextEntry?.status === 'new') {
-          const patchRes = await fetch(`/api/admin/feedback/${id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: 'reviewed' }),
-          })
-          const patchData = (await patchRes.json()) as { entry?: FeedbackEntry }
-          if (patchRes.ok && patchData.entry) {
-            nextEntry = patchData.entry
-          } else {
-            nextEntry = { ...nextEntry, status: 'reviewed' }
-          }
-        }
-
-        if (!cancelled) setEntry(nextEntry)
+        if (!cancelled) setEntry(data.entry || null)
       } catch {
         if (!cancelled) setError('Network error while loading entry.')
       } finally {

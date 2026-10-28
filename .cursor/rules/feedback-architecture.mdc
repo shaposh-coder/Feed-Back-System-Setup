@@ -7,27 +7,29 @@ alwaysApply: true
 
 ## Reference only
 - `Courier-Dashboard/` and `Personal Notedbook/` are **reference** (gitignored). Copy patterns; do not import their code into the product app.
-- Prefer Courier patterns: thin pages → `lib/` for data access → API routes for privileged writes → Postgres RPC for heavy/admin reads later.
+- Prefer Courier patterns: thin pages → `lib/` for data access → API routes for privileged writes → Postgres RPCs (`database/rpc.sql`) for admin reads/aggregates.
+- Never pull all `feedback_entries` into Node for dashboard charts — use `rpc_admin_dashboard_stats`.
+- Admin list/detail: `rpc_admin_feedback_page`, `rpc_admin_get_feedback_entry`. RPCs are **service_role only** (revoke from anon/authenticated).
 
 ## Customer form → Supabase
 - Public customer form lives at `/` (multi-step). On **Submit**, POST `/api/feedback`.
 - API validates with `lib/feedbackValidation.ts`, then inserts via `getSupabaseAdmin()` into `feedback_entries`.
 - Do **not** expose service role to the browser. Do not insert from the client for production submissions.
-- Schema source of truth: `database/schema.sql`.
+- Schema source of truth: `database/schema.sql`. Admin RPCs: `database/rpc.sql`.
 
 ## Admin panel (`/admin`)
 - Login via **Supabase Auth** (`signInWithPassword`) — only users in Supabase Authentication can sign in.
 - After Auth succeeds, set app session cookie `feedback_admin_session` (signed with `JWT_SECRET`) carrying `userId`, `email`, `name`.
 - Middleware guards `/admin/*` except `/admin/login`.
-- List/detail via `/api/admin/feedback` with service role; never expose admin APIs without session check.
+- List/detail via `/api/admin/feedback` → RPCs with service role; never expose admin APIs without session check; never call RPCs from the browser.
 - Brand name / question labels: configure later from admin settings (do not hardcode client brands).
 
 ## Layering
 - `app/` — routes & UI pages only
 - `components/` — UI
 - `lib/` — options, validation, supabase clients
-- `database/` — SQL schema / future RPCs (`rpc_*`)
-- Admin panel (later): separate route group; list/filter via RPC + page size caps, never pull all rows client-side for reports
+- `database/` — SQL schema + `rpc_*` functions
+- Admin reads: RPC + page size caps; never pull all rows client-side for reports
 
 ## Demo Mode & portfolio (when built)
 - Follow Personal Notedbook `Portfolio-Project-Setup-Prompt.md`: Phase 1 `demo-mode/` offline clone → Documentation → screenshots → rules → README.

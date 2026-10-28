@@ -5,6 +5,7 @@ All notable changes to Store Feedback System are documented here.
 ## [1.0.0] — 2026-10-28
 
 ### Added
+- Postgres admin RPCs (`database/rpc.sql`) for dashboard stats, paged entries, entry open, and brand asset updates — Courier-style, service-role only.
 - Vercel Cron endpoint at `/api/cron` (daily 10:00 UTC) protected by `CRON_SECRET`.
 - Initial Demo Mode and documentation pipeline for portfolio publishing.
 - Customer store-visit feedback form with multi-step flow.
@@ -13,7 +14,11 @@ All notable changes to Store Feedback System are documented here.
 - Portfolio documentation guides with screenshots under `Documentation/images/`.
 
 ### Changed
+- Admin dashboard, entries list, and entry open now use RPCs instead of full-table or multi-round-trip Supabase reads.
+- Brand settings reads are short-cached; favicon no longer re-fetches `/api/brand` on every page load.
+- Brand image upload skips bucket list/update on the hot path.
 - Updated root README with product overview and documentation screenshots.
 
 ### Fixed
 - Stopped ignoring `demo-mode/` in root `.vercelignore` so the Demo Mode Vercel project can build with Root Directory set to `demo-mode`.
+- Dashboard stats no longer hit Supabase’s 1000-row silent cap when aggregating in Node.

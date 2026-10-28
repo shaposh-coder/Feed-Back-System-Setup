@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 import { getAdminSessionFromCookies } from '@/lib/adminSession'
 import { getSupabaseAdmin } from '@/lib/supabase-server'
 
@@ -91,6 +92,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Unable to save brand settings.' }, { status: 500 })
     }
 
+    revalidateTag('brand')
     return NextResponse.json(mapBrand(data))
   } catch (err) {
     console.error('brand put route:', err)

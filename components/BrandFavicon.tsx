@@ -19,7 +19,6 @@ function upsertIconLink(rel: string, href: string, type?: string) {
 function applyFavicon(url: string) {
   if (!url) return
 
-  // Cover common browser / device icon slots
   upsertIconLink('icon', url)
   upsertIconLink('shortcut icon', url)
   upsertIconLink('apple-touch-icon', url)
@@ -37,33 +36,20 @@ function applyFavicon(url: string) {
 
 export const BRAND_FAVICON_UPDATED_EVENT = 'brand-favicon-updated'
 
+/**
+ * Applies favicon updates from Brand Settings without an extra /api/brand fetch.
+ * Initial favicon comes from server `metadata.icons` in app/layout.tsx.
+ */
 export default function BrandFavicon() {
   useEffect(() => {
-    let cancelled = false
-
-    async function load() {
-      try {
-        const res = await fetch('/api/brand', { cache: 'no-store' })
-        if (!res.ok) return
-        const data = (await res.json()) as { faviconUrl?: string }
-        if (cancelled) return
-        if (data.faviconUrl) applyFavicon(data.faviconUrl)
-      } catch {
-        // Keep default / previous favicon
-      }
-    }
-
     function onUpdated(event: Event) {
       const custom = event as CustomEvent<{ faviconUrl?: string }>
       const url = custom.detail?.faviconUrl
       if (url) applyFavicon(url)
-      else void load()
     }
 
-    void load()
     window.addEventListener(BRAND_FAVICON_UPDATED_EVENT, onUpdated)
     return () => {
-      cancelled = true
       window.removeEventListener(BRAND_FAVICON_UPDATED_EVENT, onUpdated)
     }
   }, [])

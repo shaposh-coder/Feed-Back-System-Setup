@@ -191,8 +191,11 @@ export default function FeedbackEntriesPanel() {
 
   useEffect(() => {
     const t = setTimeout(() => {
+      const next = searchInput.trim()
+      // Skip 1-char searches — they burn DB and rarely help
+      if (next.length === 1) return
       setPage(1)
-      setQ(searchInput.trim())
+      setQ(next)
     }, 350)
     return () => clearTimeout(t)
   }, [searchInput])

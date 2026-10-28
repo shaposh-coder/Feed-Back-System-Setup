@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getAdminSessionFromCookies } from '@/lib/adminSession'
-import { FEEDBACK_SELECT, type FeedbackStatus } from '@/lib/feedbackTypes'
+import { FEEDBACK_SELECT, type FeedbackEntry, type FeedbackStatus } from '@/lib/feedbackTypes'
 import { getSupabaseAdmin } from '@/lib/supabase-server'
 
 export const runtime = 'nodejs'
@@ -9,28 +9,34 @@ const STATUSES: FeedbackStatus[] = ['new', 'reviewed', 'archived']
 
 type Ctx = { params: { id: string } }
 
-export async function GET(_request: Request, { params }: Ctx) {
+export async function GET(request: Request, { params }: Ctx) {
   const session = await getAdminSessionFromCookies()
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  const markReviewed =
+    new URL(request.url).searchParams.get('markReviewed') === '1' ||
+    new URL(request.url).searchParams.get('markReviewed') === 'true'
+
   try {
     const admin = getSupabaseAdmin()
-    const { data, error } = await admin
-      .from('feedback_entries')
-      .select(FEEDBACK_SELECT)
-      .eq('id', params.id)
-      .maybeSingle()
+    const { data, error } = await admin.rpc('rpc_admin_get_feedback_entry', {
+      p_id: params.id,
+      p_mark_reviewed: markReviewed,
+    })
 
     if (error) {
-      console.error('admin feedback get:', error.message)
+      console.error('admin feedback get rpc:', error.message)
       return NextResponse.json({ error: 'Unable to load entry.' }, { status: 500 })
     }
-    if (!data) {
+
+    const rows = (data ?? []) as FeedbackEntry[]
+    const entry = rows[0]
+    if (!entry) {
       return NextResponse.json({ error: 'Entry not found.' }, { status: 404 })
     }
-    return NextResponse.json({ entry: data })
+    return NextResponse.json({ entry })
   } catch (err) {
     console.error('admin feedback get route:', err)
     return NextResponse.json({ error: 'Server configuration error.' }, { status: 500 })

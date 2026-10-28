@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 import { getAdminSessionFromCookies } from '@/lib/adminSession'
 import { getSupabaseAdmin } from '@/lib/supabase-server'
 
@@ -29,6 +30,18 @@ const FAVICON_TYPES = new Set([
 
 function sanitizeFilePart(name: string): string {
   return name.replace(/[^a-zA-Z0-9._-]/g, '-')
+}
+
+async function ensureBucket(admin: ReturnType<typeof getSupabaseAdmin>) {
+  const allowedMimeTypes = Array.from(new Set([...LOGO_TYPES, ...FAVICON_TYPES]))
+  const create = await admin.storage.createBucket(BUCKET_NAME, {
+    public: true,
+    fileSizeLimit: MAX_FILE_BYTES,
+    allowedMimeTypes,
+  })
+  if (create.error && !/already exists/i.test(create.error.message)) {
+    throw new Error(create.error.message)
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -70,42 +83,6 @@ export async function POST(request: NextRequest) {
 
   try {
     const admin = getSupabaseAdmin()
-    const buckets = await admin.storage.listBuckets()
-    if (buckets.error) {
-      console.error('list buckets:', buckets.error.message)
-      return NextResponse.json({ error: 'Unable to prepare uploads right now.' }, { status: 500 })
-    }
-
-    const allowedMimeTypes = Array.from(new Set([...LOGO_TYPES, ...FAVICON_TYPES]))
-    const exists = (buckets.data ?? []).some((b) => b.name === BUCKET_NAME)
-    if (!exists) {
-      const create = await admin.storage.createBucket(BUCKET_NAME, {
-        public: true,
-        fileSizeLimit: MAX_FILE_BYTES,
-        allowedMimeTypes,
-      })
-      if (create.error) {
-        console.error('create bucket:', create.error.message)
-        return NextResponse.json(
-          {
-            error:
-              'Unable to create storage for brand images. Create a public bucket named branding-assets in your project storage, then try again.',
-          },
-          { status: 500 }
-        )
-      }
-    } else {
-      // Keep bucket MIME allow-list in sync (e.g. newly added AVIF)
-      const update = await admin.storage.updateBucket(BUCKET_NAME, {
-        public: true,
-        fileSizeLimit: MAX_FILE_BYTES,
-        allowedMimeTypes,
-      })
-      if (update.error) {
-        console.error('update bucket:', update.error.message)
-      }
-    }
-
     const safeExt = sanitizeFilePart(ext || 'png') || 'png'
     const folder = kind === 'favicon' ? 'favicon' : 'logo'
     const filePath = `${folder}/${Date.now()}-${sanitizeFilePart(session.userId)}.${safeExt}`
@@ -118,11 +95,34 @@ export async function POST(request: NextRequest) {
           : ext === 'ico'
             ? 'image/x-icon'
             : file.type || 'application/octet-stream'
-    const upload = await admin.storage.from(BUCKET_NAME).upload(filePath, bytes, {
+
+    let upload = await admin.storage.from(BUCKET_NAME).upload(filePath, bytes, {
       upsert: false,
       contentType,
       cacheControl: '3600',
     })
+
+    // Create bucket only when missing — avoid listBuckets + updateBucket on every upload
+    if (upload.error && /bucket|not found|does not exist/i.test(upload.error.message)) {
+      try {
+        await ensureBucket(admin)
+      } catch (err) {
+        console.error('create bucket:', err)
+        return NextResponse.json(
+          {
+            error:
+              'Unable to create storage for brand images. Create a public bucket named branding-assets in your project storage, then try again.',
+          },
+          { status: 500 }
+        )
+      }
+      upload = await admin.storage.from(BUCKET_NAME).upload(filePath, bytes, {
+        upsert: false,
+        contentType,
+        cacheControl: '3600',
+      })
+    }
+
     if (upload.error) {
       console.error('upload:', upload.error.message)
       const mimeBlocked = /mime type|not supported/i.test(upload.error.message)
@@ -141,39 +141,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unable to create image link.' }, { status: 500 })
     }
 
-    const { data: existing } = await admin
-      .from('brand_settings')
-      .select('brand_name, logo_url, favicon_url')
-      .eq('id', 1)
-      .maybeSingle()
-
-    const { data, error } = await admin
-      .from('brand_settings')
-      .upsert(
-        {
-          id: 1,
-          brand_name: existing?.brand_name ?? '',
-          logo_url: kind === 'logo' ? publicUrl : existing?.logo_url ?? '',
-          favicon_url: kind === 'favicon' ? publicUrl : existing?.favicon_url ?? '',
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'id' }
-      )
-      .select('brand_name, logo_url, favicon_url, updated_at')
-      .single()
+    const { data, error } = await admin.rpc('rpc_admin_set_brand_asset', {
+      p_kind: kind,
+      p_url: publicUrl,
+    })
 
     if (error) {
-      console.error('brand asset save:', error.message)
+      console.error('brand asset save rpc:', error.message)
       return NextResponse.json({ error: 'Image uploaded but settings could not be saved.' }, { status: 500 })
     }
+
+    const row = data as {
+      brand_name?: string
+      logo_url?: string
+      favicon_url?: string
+      updated_at?: string
+    } | null
+
+    revalidateTag('brand')
 
     return NextResponse.json({
       kind,
       url: publicUrl,
-      brandName: data.brand_name ?? '',
-      logoUrl: data.logo_url ?? '',
-      faviconUrl: data.favicon_url ?? '',
-      updatedAt: data.updated_at ?? null,
+      brandName: row?.brand_name ?? '',
+      logoUrl: row?.logo_url ?? '',
+      faviconUrl: row?.favicon_url ?? '',
+      updatedAt: row?.updated_at ?? null,
     })
   } catch (err) {
     console.error('brand upload route:', err)

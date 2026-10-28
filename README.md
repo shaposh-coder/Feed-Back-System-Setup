@@ -63,7 +63,7 @@ Full guides and screenshots live under [`Documentation/`](Documentation/index.md
 ## Getting started (production app)
 
 1. Copy `.env.example` → `.env.local` and fill the required keys.
-2. In Supabase SQL editor, run `database/schema.sql` (and any listed patches).
+2. In Supabase SQL editor, run `database/schema.sql`, then brand patches if needed, then **`database/rpc.sql`** (admin dashboard / list / detail RPCs — required for free-tier-friendly reads).
 3. Install and run:
 
 ```bash

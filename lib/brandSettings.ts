@@ -1,3 +1,5 @@
+import { cache } from 'react'
+import { unstable_cache } from 'next/cache'
 import { getSupabaseAdmin } from '@/lib/supabase-server'
 
 export type BrandSettings = {
@@ -12,7 +14,7 @@ const EMPTY_BRAND: BrandSettings = {
   faviconUrl: '',
 }
 
-export async function getBrandSettings(): Promise<BrandSettings> {
+async function fetchBrandSettings(): Promise<BrandSettings> {
   try {
     const admin = getSupabaseAdmin()
     const { data, error } = await admin
@@ -32,3 +34,11 @@ export async function getBrandSettings(): Promise<BrandSettings> {
     return EMPTY_BRAND
   }
 }
+
+const getCachedBrandSettings = unstable_cache(fetchBrandSettings, ['brand-settings'], {
+  revalidate: 60,
+  tags: ['brand'],
+})
+
+/** Request-deduped + short-lived cached brand row (avoids 2–3 identical reads per page). */
+export const getBrandSettings = cache(async (): Promise<BrandSettings> => getCachedBrandSettings())
