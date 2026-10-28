@@ -16,6 +16,7 @@ All notable changes to Store Feedback System are documented here.
 - Portfolio documentation guides with screenshots under `Documentation/images/`.
 
 ### Changed
+- Removed “Refund policy” from visit challenge options on the customer form.
 - Customer form footer shows “© {year} {brand}. All rights reserved.” under the visit note.
 - Customer form brand logo/name links to `/` so thank-you screen returns to a fresh form.
 - Customer form free-text question label set to “Do you have any feedback or suggestion?”

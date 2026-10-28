@@ -113,9 +113,8 @@ const MAJOR_CHALLENGES = [
   CHALLENGE_OPTIONS[2], // Product unavailability
   CHALLENGE_OPTIONS[3], // Product quality
   CHALLENGE_OPTIONS[4], // Checkout experience
-  CHALLENGE_OPTIONS[6], // Refund policy
-  CHALLENGE_OPTIONS[7], // Exchange policy
-  CHALLENGE_OPTIONS[8], // Claim
+  CHALLENGE_OPTIONS[6], // Exchange policy
+  CHALLENGE_OPTIONS[7], // Claim
 ]
 
 const OTHER_CHALLENGE_NOTES = [

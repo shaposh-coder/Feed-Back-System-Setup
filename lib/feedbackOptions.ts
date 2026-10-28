@@ -22,7 +22,6 @@ export const CHALLENGE_OPTIONS = [
   'Product quality',
   'Checkout experience',
   'Fitting room experience',
-  'Refund policy',
   'Exchange policy',
   'Claim',
   'Other',
