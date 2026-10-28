@@ -1,5 +1,5 @@
-import FeedbackEntriesPanel from '@/components/admin/FeedbackEntriesPanel'
+import DashboardHome from '@/components/admin/DashboardHome'
 
-export default function AdminHomePage() {
-  return <FeedbackEntriesPanel />
+export default function AdminDashboardPage() {
+  return <DashboardHome />
 }

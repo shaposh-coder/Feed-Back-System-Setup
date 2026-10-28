@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   ClipboardList,
+  LayoutDashboard,
   LogOut,
   MessageSquareText,
   Settings,
@@ -22,10 +23,16 @@ type MenuItem = {
 
 const MENU_ITEMS: MenuItem[] = [
   {
-    name: 'Feedback Entries',
+    name: 'Dashboard',
     path: '/admin',
+    icon: LayoutDashboard,
+    match: (pathname) => pathname === '/admin',
+  },
+  {
+    name: 'Feedback Entries',
+    path: '/admin/entries',
     icon: ClipboardList,
-    match: (pathname) => pathname === '/admin' || pathname.startsWith('/admin/entries'),
+    match: (pathname) => pathname === '/admin/entries' || pathname.startsWith('/admin/entries/'),
   },
   {
     name: 'Brand Settings',

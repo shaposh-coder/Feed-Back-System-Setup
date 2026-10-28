@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, MessageSquareText } from 'lucide-react'
 import AdminSidebar from '@/components/admin/AdminSidebar'
+import ScrollToTopButton from '@/components/ScrollToTopButton'
 
 export default function AdminShell({
   name,
@@ -17,6 +18,7 @@ export default function AdminShell({
 }) {
   const pathname = usePathname()
   const [navOpen, setNavOpen] = useState(false)
+  const mainScrollRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
     setNavOpen(false)
@@ -63,9 +65,14 @@ export default function AdminShell({
         </Link>
       </header>
 
-      <main className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
+      <main
+        ref={mainScrollRef}
+        className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8"
+      >
         <div className="mx-auto w-full max-w-6xl">{children}</div>
       </main>
+
+      <ScrollToTopButton scrollRef={mainScrollRef} />
     </div>
   )
 }

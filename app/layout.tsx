@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import BrandFavicon from '@/components/BrandFavicon'
+import ScrollToTopButton from '@/components/ScrollToTopButton'
 import { getBrandSettings } from '@/lib/brandSettings'
 import './globals.css'
 
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="antialiased">
         <BrandFavicon />
         {children}
+        <ScrollToTopButton />
       </body>
     </html>
   )

@@ -92,7 +92,7 @@ export default function FeedbackEntryDetail({ id }: { id: string }) {
   if (error && !entry) {
     return (
       <div className="space-y-4">
-        <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-brand-700">
+        <Link href="/admin/entries" className="inline-flex items-center gap-2 text-sm text-brand-700">
           <ArrowLeft className="h-4 w-4" /> Back to entries
         </Link>
         <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
@@ -110,7 +110,10 @@ export default function FeedbackEntryDetail({ id }: { id: string }) {
     <div className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-brand-700">
+          <Link
+            href="/admin/entries"
+            className="inline-flex items-center gap-2 text-sm text-brand-700"
+          >
             <ArrowLeft className="h-4 w-4" /> Back to entries
           </Link>
           <h1 className="mt-3 font-display text-3xl font-semibold text-ink-900">{entry.full_name}</h1>
