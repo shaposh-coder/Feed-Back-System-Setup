@@ -35,7 +35,7 @@ This repo ships on the Trends WD portfolio via `demo-mode/` + `Documentation/`.
 
 6. Never put passwords in `demo-mode/demo.json`. Never invent a fake `live_demo_url`.
 
-7. **Never let `demo-mode/` enter the main product production build.** Keep root `tsconfig` / ESLint / Vercel ignores excluding `demo-mode`. Do not import demo code from root `app`/`src`. Root `npm run build` must stay green. Deploy demo as a **separate** project (Root Directory `demo-mode`). If a change risks pulling demo into the main build, fix excludes in the same session — do not leave it for the human.
+7. **Never let `demo-mode/` enter the main product production build.** Keep root `tsconfig` / ESLint excluding `demo-mode`. Do **not** list `demo-mode` in root `.vercelignore` — that deletes the folder before a Demo Mode Vercel project (Root Directory = `demo-mode`) can build. Do not import demo code from root `app`/`src`. Root `npm run build` must stay green. Deploy demo as a **separate** project (Root Directory `demo-mode`). If a change risks pulling demo into the main build, fix excludes in the same session — do not leave it for the human.
 
 8. Keep **`demo-mode/.gitignore`** present and up to date (node_modules, .next/out/build, .env*, .vercel, OS/debug logs, Playwright junk). Mirror root ignores into demo-mode — do not leave gitignore setup for the human after the pipeline.
 

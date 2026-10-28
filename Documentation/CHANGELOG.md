@@ -15,4 +15,4 @@ All notable changes to Store Feedback System are documented here.
 - Updated root README with product overview and documentation screenshots.
 
 ### Fixed
-- (none yet)
+- Stopped ignoring `demo-mode/` in root `.vercelignore` so the Demo Mode Vercel project can build with Root Directory set to `demo-mode`.

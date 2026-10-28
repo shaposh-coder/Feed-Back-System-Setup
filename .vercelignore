@@ -1,5 +1,6 @@
-# Demo Mode is a separate app — deploy it as its own Vercel project (Root Directory = demo-mode).
-demo-mode
+# Do NOT list demo-mode here — a separate Vercel project with
+# Root Directory = demo-mode needs those files present at build time.
+# Main product already excludes demo-mode via tsconfig / ESLint.
 Documentation
 Courier-Dashboard
 Personal Notedbook

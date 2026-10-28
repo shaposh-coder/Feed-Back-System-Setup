@@ -87,13 +87,27 @@ demo:feedback-system:user:{userId}:seeded
 
 **TODO (maintainer):** deploy this folder as its own Vercel project (Root Directory = `demo-mode`), then set `live_demo_url` to the public URL. Do not add credentials to this file.
 
+## Deploy on Vercel (Demo Mode project)
+
+Create a **separate** Vercel project from this same repo:
+
+| Setting | Value |
+|---------|--------|
+| Root Directory | `demo-mode` |
+| Framework | Next.js |
+| Build Command | `npm run build` (default) |
+| Install Command | `npm install` (default) |
+
+Do **not** add `demo-mode` to the repo-root `.vercelignore` — Vercel applies that file before the build and would delete this folder, causing `NEXT_NO_VERSION`.
+
+After deploy, paste the public URL into `demo.json` → `live_demo_url`.
+
 ## Excluded from the main product build
 
 Demo Mode has its own `package.json`, `tsconfig.json` and `.eslintrc.json` (`"root": true`). At the repository root it is excluded via:
 
 - `tsconfig.json` → `exclude: ["demo-mode", ...]`
 - `.eslintrc.json` → `ignorePatterns: ["demo-mode/**", ...]`
-- `.vercelignore` → `demo-mode`
 - `.gitignore` → safety-net entries for `demo-mode/node_modules/`, `demo-mode/.next/`, `demo-mode/.env*`
 
 The root app never imports from `demo-mode/`. Deploy the demo separately; never fold it into the main product project.
