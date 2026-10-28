@@ -257,7 +257,7 @@ export default function FeedbackForm() {
 
           <div>
             <label htmlFor="email" className="field-label">
-              Email <span className="field-required">*</span>
+              Email <span className="text-brand-500 font-normal">(optional)</span>
             </label>
             <input
               id="email"
@@ -271,7 +271,6 @@ export default function FeedbackForm() {
               onInput={(e) => updateField('email', e.currentTarget.value)}
               placeholder="name@example.com"
               aria-invalid={isInvalid('email')}
-              required
             />
           </div>
 

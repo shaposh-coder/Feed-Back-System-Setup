@@ -30,7 +30,7 @@ export type FeedbackValidationResult =
 const STEP1_MESSAGES: Partial<Record<FeedbackFieldKey, string>> = {
   fullName: 'Please enter your name.',
   phone: 'Please enter your phone number.',
-  email: 'Please enter your email address.',
+  email: 'Please enter a valid email address.',
   location: 'Please enter your location.',
   gender: 'Please select your gender.',
   ageGroup: 'Please select your age group.',
@@ -47,7 +47,7 @@ export function getStep1InvalidFields(input: Partial<FeedbackFormData>): Feedbac
   const fields: FeedbackFieldKey[] = []
   if (!fullName) fields.push('fullName')
   if (!phone) fields.push('phone')
-  if (!email || !isEmail(email)) fields.push('email')
+  if (email && !isEmail(email)) fields.push('email')
   if (!location) fields.push('location')
   if (!isOneOf(gender, GENDER_OPTIONS)) fields.push('gender')
   if (!isOneOf(ageGroup, AGE_GROUP_OPTIONS)) fields.push('ageGroup')

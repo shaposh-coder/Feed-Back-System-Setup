@@ -15,6 +15,7 @@ All notable changes to Store Feedback System are documented here.
 - Portfolio documentation guides with screenshots under `Documentation/images/`.
 
 ### Changed
+- Customer feedback form: Email is optional (blank allowed; invalid format still rejected).
 - Locations & Branches tables use Courier settings layout: mobile card lists, desktop side-by-side tables (profile-style grid), FormModal add/edit and delete confirm (production + Demo Mode).
 - Admin dashboard, entries list, and entry open now use RPCs instead of full-table or multi-round-trip Supabase reads.
 - Brand settings reads are short-cached; favicon no longer re-fetches `/api/brand` on every page load.
