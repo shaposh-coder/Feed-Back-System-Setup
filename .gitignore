@@ -38,6 +38,13 @@ next-env.d.ts
 /Courier-Dashboard/
 
 
+# Demo Mode (separate app) — safety net; demo-mode/.gitignore is the source of truth
+demo-mode/node_modules/
+demo-mode/.next/
+demo-mode/.env
+demo-mode/.env.*
+!demo-mode/.env.example
+
 # demo / docs tooling later
 **/auto-screenshot/auth/
 **/auto-screenshot/config.json

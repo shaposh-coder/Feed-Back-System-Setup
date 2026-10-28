@@ -1,0 +1,30 @@
+{
+  "site": "Store Feedback System Documentation",
+  "base_url": "https://trendswd.com/projects/Feed-Back-System-Setup/doc",
+  "version": "1.0.0",
+  "version_date": "2026-10-28",
+  "navigation": [
+    { "title": "Home", "path": "/docs", "file": "index.md" },
+    {
+      "title": "Getting started",
+      "children": [
+        { "title": "Getting started", "path": "/docs/00-getting-started", "file": "00-getting-started.md" },
+        { "title": "Version", "path": "/docs/APP-VERSION", "file": "APP-VERSION.md" },
+        { "title": "Changelog", "path": "/docs/CHANGELOG", "file": "CHANGELOG.md" }
+      ]
+    },
+    {
+      "title": "Pages",
+      "children": [
+        { "title": "Customer feedback form", "path": "/docs/01-customer-form", "file": "01-customer-form.md" },
+        { "title": "Admin login", "path": "/docs/02-login", "file": "02-login.md" },
+        { "title": "Dashboard", "path": "/docs/03-dashboard", "file": "03-dashboard.md" },
+        { "title": "Navigation", "path": "/docs/04-navigation", "file": "04-navigation.md" },
+        { "title": "Feedback entries", "path": "/docs/05-entries", "file": "05-entries.md" },
+        { "title": "Entry detail", "path": "/docs/06-entry-detail", "file": "06-entry-detail.md" },
+        { "title": "Brand settings", "path": "/docs/07-brand-settings", "file": "07-brand-settings.md" },
+        { "title": "My Profile", "path": "/docs/08-profile", "file": "08-profile.md" }
+      ]
+    }
+  ]
+}
