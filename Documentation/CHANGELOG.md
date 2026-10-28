@@ -5,6 +5,7 @@ All notable changes to Store Feedback System are documented here.
 ## [1.0.0] — 2026-10-28
 
 ### Added
+- Vercel Cron endpoint at `/api/cron` (daily 10:00 UTC) protected by `CRON_SECRET`.
 - Initial Demo Mode and documentation pipeline for portfolio publishing.
 - Customer store-visit feedback form with multi-step flow.
 - Admin dashboard with response charts (satisfaction, gender, age, challenges, categories).
